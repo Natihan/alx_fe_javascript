@@ -31,34 +31,121 @@ async function fetchQuotesFromServer() {
 
 // Handle incoming quotes from the server
 function handleServerQuotes(serverQuotes) {
-    // Map server quotes to match local structure
     const formattedServerQuotes = serverQuotes.map(q => ({
-        id: q.id, // Assuming ID from the server
+        id: q.id,
         text: q.title, // Using title as the quote text
         category: 'General' // Assign a default category
     }));
 
-    // Simple conflict resolution: server data takes precedence
     const serverQuoteIds = new Set(formattedServerQuotes.map(q => q.id));
 
-    // Update local quotes with server quotes
     formattedServerQuotes.forEach(serverQuote => {
         const localQuoteIndex = quotes.findIndex(q => q.id === serverQuote.id);
         if (localQuoteIndex >= 0) {
-            // If it exists locally, replace it
             quotes[localQuoteIndex] = serverQuote;
         } else {
-            // If it's new, add it
             quotes.push(serverQuote);
         }
     });
 
-    // Remove local quotes that are not present on the server
     quotes = quotes.filter(q => serverQuoteIds.has(q.id));
-
-    // Save updated quotes to local storage
     saveQuotes();
     alert("Quotes have been synced with the server.");
 }
 
-// Sync 
+// Sync local data with the server periodically
+function syncWithServer() {
+    setInterval(fetchQuotesFromServer, 10000); // Fetch every 10 seconds
+}
+
+// Populate categories in the dropdown
+function populateCategories() {
+    const categoryFilter = document.getElementById("categoryFilter");
+    const categories = new Set(quotes.map(quote => quote.category));
+    
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    
+    categories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category; // Use textContent for safety
+        categoryFilter.appendChild(option);
+    });
+
+    const lastSelectedCategory = localStorage.getItem("lastSelectedCategory") || "all";
+    categoryFilter.value = lastSelectedCategory;
+}
+
+// Function to show quotes based on the selected category
+function filterQuotes() {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    const quoteDisplay = document.getElementById("quoteDisplay");
+
+    const filteredQuotes = selectedCategory === "all" ? quotes : quotes.filter(quote => quote.category === selectedCategory);
+    
+    if (filteredQuotes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+        quoteDisplay.textContent = `"${filteredQuotes[randomIndex].text}" - ${filteredQuotes[randomIndex].category}`; // Use textContent
+    } else {
+        quoteDisplay.textContent = "No quotes available for this category."; // Use textContent
+    }
+
+    localStorage.setItem("lastSelectedCategory", selectedCategory);
+}
+
+// Function to show a random quote
+function showRandomQuote() {
+    const quoteDisplay = document.getElementById("quoteDisplay");
+    if (quotes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteDisplay.textContent = `"${quotes[randomIndex].text}" - ${quotes[randomIndex].category}`; // Use textContent
+    } else {
+        quoteDisplay.textContent = "No quotes available. Please add some!"; // Use textContent
+    }
+}
+
+// Event listener for the button
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+
+// Function to add a new quote
+async function addQuote() {
+    const newQuoteText = document.getElementById("newQuoteText").value;
+    const newQuoteCategory = document.getElementById("newQuoteCategory").value;
+
+    if (newQuoteText && newQuoteCategory) {
+        const newQuote = {
+            id: Date.now(), // Generate a unique ID
+            title: newQuoteText, // Use title for the mock API
+            body: newQuoteText, // Use body for the mock API
+            category: newQuoteCategory
+        };
+
+        try {
+            const response = await fetch(SERVER_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newQuote)
+            });
+
+            if (!response.ok) throw new Error('Failed to add quote to server');
+
+            // If successfully added to server, add to local storage
+            quotes.push({ id: newQuote.id, text: newQuote.title, category: newQuoteCategory });
+            saveQuotes();
+            populateCategories(); // Update categories dropdown
+            document.getElementById("newQuoteText").value = "";
+            document.getElementById("newQuoteCategory").value = "";
+            alert("Quote added successfully!");
+        } catch (error) {
+            console.error('Error adding quote:', error);
+            alert("Failed to add quote.");
+        }
+    } else {
+        alert("Please enter both quote and category.");
+    }
+}
+
+// Initialize the application
+loadQuotes(); // Load qu
