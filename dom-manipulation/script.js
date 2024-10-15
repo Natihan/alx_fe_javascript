@@ -15,6 +15,31 @@ function showRandomQuote() {
 // Event listener for the button
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 
+// Function to create the add quote form
+function createAddQuoteForm() {
+    const formContainer = document.createElement("div");
+
+    const quoteInput = document.createElement("input");
+    quoteInput.id = "newQuoteText";
+    quoteInput.type = "text";
+    quoteInput.placeholder = "Enter a new quote";
+
+    const categoryInput = document.createElement("input");
+    categoryInput.id = "newQuoteCategory";
+    categoryInput.type = "text";
+    categoryInput.placeholder = "Enter quote category";
+
+    const addButton = document.createElement("button");
+    addButton.innerText = "Add Quote";
+    addButton.onclick = addQuote;
+
+    formContainer.appendChild(quoteInput);
+    formContainer.appendChild(categoryInput);
+    formContainer.appendChild(addButton);
+
+    document.body.appendChild(formContainer);
+}
+
 // Function to add a new quote
 function addQuote() {
     const newQuoteText = document.getElementById("newQuoteText").value;
@@ -29,3 +54,6 @@ function addQuote() {
         alert("Please enter both quote and category.");
     }
 }
+
+// Initialize the add quote form
+createAddQuoteForm();
