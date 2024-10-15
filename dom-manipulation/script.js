@@ -9,7 +9,7 @@ let quotes = [
 function showRandomQuote() {
     const quoteDisplay = document.getElementById("quoteDisplay");
     const randomIndex = Math.floor(Math.random() * quotes.length);
-    quoteDisplay.innerText = `"${quotes[randomIndex].text}" - ${quotes[randomIndex].category}`;
+    quoteDisplay.innerHTML = `"${quotes[randomIndex].text}" - <strong>${quotes[randomIndex].category}</strong>`;
 }
 
 // Event listener for the button
