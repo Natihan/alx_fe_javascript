@@ -58,6 +58,23 @@ function syncWithServer() {
     setInterval(fetchQuotesFromServer, 10000); // Fetch every 10 seconds
 }
 
+// Function to sync local quotes to the server
+async function syncQuotes() {
+    for (const quote of quotes) {
+        try {
+            await fetch(SERVER_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(quote)
+            });
+        } catch (error) {
+            console.error('Error syncing quote:', error);
+        }
+    }
+}
+
 // Populate categories in the dropdown
 function populateCategories() {
     const categoryFilter = document.getElementById("categoryFilter");
@@ -138,6 +155,9 @@ async function addQuote() {
             document.getElementById("newQuoteText").value = "";
             document.getElementById("newQuoteCategory").value = "";
             alert("Quote added successfully!");
+
+            // Sync the added quote with the server
+            await syncQuotes();
         } catch (error) {
             console.error('Error adding quote:', error);
             alert("Failed to add quote.");
@@ -148,4 +168,6 @@ async function addQuote() {
 }
 
 // Initialize the application
-loadQuotes(); // Load qu
+loadQuotes(); // Load quotes when the page loads
+populateCategories(); // Populate categories when the page loads
+syncWithServer(); // Start syncing with the server
