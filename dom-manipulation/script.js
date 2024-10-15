@@ -18,11 +18,14 @@ function saveQuotes() {
 function populateCategories() {
     const categoryFilter = document.getElementById("categoryFilter");
     const categories = new Set(quotes.map(quote => quote.category));
+
+    // Clear existing options before populating
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
     
     categories.forEach(category => {
         const option = document.createElement("option");
         option.value = category;
-        option.innerText = category;
+        option.textContent = category; // Use textContent for safety
         categoryFilter.appendChild(option);
     });
 
@@ -40,9 +43,9 @@ function filterQuotes() {
     
     if (filteredQuotes.length > 0) {
         const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
-        quoteDisplay.innerHTML = `"${filteredQuotes[randomIndex].text}" - <strong>${filteredQuotes[randomIndex].category}</strong>`;
+        quoteDisplay.textContent = `"${filteredQuotes[randomIndex].text}" - ${filteredQuotes[randomIndex].category}`; // Use textContent
     } else {
-        quoteDisplay.innerHTML = "No quotes available for this category.";
+        quoteDisplay.textContent = "No quotes available for this category."; // Use textContent
     }
 
     // Save the last selected category in local storage
@@ -54,9 +57,9 @@ function showRandomQuote() {
     const quoteDisplay = document.getElementById("quoteDisplay");
     if (quotes.length > 0) {
         const randomIndex = Math.floor(Math.random() * quotes.length);
-        quoteDisplay.innerHTML = `"${quotes[randomIndex].text}" - <strong>${quotes[randomIndex].category}</strong>`;
+        quoteDisplay.textContent = `"${quotes[randomIndex].text}" - ${quotes[randomIndex].category}`; // Use textContent
     } else {
-        quoteDisplay.innerHTML = "No quotes available. Please add some!";
+        quoteDisplay.textContent = "No quotes available. Please add some!"; // Use textContent
     }
 }
 
