@@ -50,7 +50,7 @@ function handleServerQuotes(serverQuotes) {
 
     quotes = quotes.filter(q => serverQuoteIds.has(q.id));
     saveQuotes();
-    alert("Quotes have been synced with the server.");
+    alert("Quotes have been synced with the server."); // Notification
 }
 
 // Sync local data with the server periodically
@@ -73,6 +73,7 @@ async function syncQuotes() {
             console.error('Error syncing quote:', error);
         }
     }
+    alert("Quotes synced with server!"); // Notification
 }
 
 // Populate categories in the dropdown
