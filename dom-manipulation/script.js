@@ -2,7 +2,7 @@
 let quotes = [];
 
 // Server endpoint simulation
-const SERVER_URL = "https://example.com/api/quotes"; // Replace with actual mock API if needed
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts"; // Mock API for quotes
 
 // Load quotes from local storage
 function loadQuotes() {
@@ -31,12 +31,18 @@ async function fetchQuotesFromServer() {
 
 // Handle incoming quotes from the server
 function handleServerQuotes(serverQuotes) {
+    // Map server quotes to match local structure
+    const formattedServerQuotes = serverQuotes.map(q => ({
+        id: q.id, // Assuming ID from the server
+        text: q.title, // Using title as the quote text
+        category: 'General' // Assign a default category
+    }));
+
     // Simple conflict resolution: server data takes precedence
-    const serverQuoteIds = new Set(serverQuotes.map(q => q.id));
-    const localQuoteIds = new Set(quotes.map(q => q.id));
+    const serverQuoteIds = new Set(formattedServerQuotes.map(q => q.id));
 
     // Update local quotes with server quotes
-    serverQuotes.forEach(serverQuote => {
+    formattedServerQuotes.forEach(serverQuote => {
         const localQuoteIndex = quotes.findIndex(q => q.id === serverQuote.id);
         if (localQuoteIndex >= 0) {
             // If it exists locally, replace it
@@ -55,32 +61,4 @@ function handleServerQuotes(serverQuotes) {
     alert("Quotes have been synced with the server.");
 }
 
-// Sync local data with the server periodically
-function syncWithServer() {
-    setInterval(fetchQuotesFromServer, 10000); // Fetch every 10 seconds
-}
-
-// Populate categories in the dropdown
-function populateCategories() {
-    const categoryFilter = document.getElementById("categoryFilter");
-    const categories = new Set(quotes.map(quote => quote.category));
-    
-    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-    
-    categories.forEach(category => {
-        const option = document.createElement("option");
-        option.value = category;
-        option.textContent = category; // Use textContent for safety
-        categoryFilter.appendChild(option);
-    });
-
-    const lastSelectedCategory = localStorage.getItem("lastSelectedCategory") || "all";
-    categoryFilter.value = lastSelectedCategory;
-}
-
-// Other functions remain unchanged...
-
-// Initialize the application
-loadQuotes(); // Load quotes when the page loads
-populateCategories(); // Populate categories when the page loads
-syncWithServer(); // Start syncing with the server
+// Sync 
